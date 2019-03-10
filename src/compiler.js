@@ -158,12 +158,6 @@ export default function compiler(tokens: Array<Token>, date: Date, options: Tiny
 
 
 export function compileDateString(tokens: Array<Token>, dateString: string, options: TinyTimeOptions): string {
-  // const month = date.getMonth();
-  // const year = date.getFullYear();
-  // const hours = date.getHours();
-  // const seconds = date.getSeconds();
-  // const minutes = date.getMinutes();
-  // const day = date.getDate();
 
   const parsedDate = options.baseDate || new Date();
   let compiled = dateString;
@@ -188,7 +182,7 @@ export function compileDateString(tokens: Array<Token>, dateString: string, opti
         }
         break;
       case Day: {
-        const [, day, , rest] = matchRegex(/^(\d{0,2})(st|rd|nd|th)(.*)/, compiled);
+        const [, day, , rest] = matchRegex(/^([0-3]?[0-9])(st|rd|nd|th)(.*)/, compiled);
         parsedDate.setDate(parseInt(day, 10));
         compiled = rest;
         break;
@@ -207,7 +201,7 @@ export function compileDateString(tokens: Array<Token>, dateString: string, opti
         break;
       }
       case NumberMonth: {
-        const [, month, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        const [, month, rest] = matchRegex(/^([01]?[0-9])(.*)/, compiled);
         parsedDate.setMonth(parseInt(month, 10) - 1);
         compiled = rest;
         break;
@@ -240,27 +234,27 @@ export function compileDateString(tokens: Array<Token>, dateString: string, opti
         break;
       }
       case Hour: {
-        const [, hour, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        const [, hour, rest] = matchRegex(/^([01]?[0-9])(.*)/, compiled);
         parsedDate.setHours(parseInt(hour, 10));
         compiled = rest;
         is12HourTime = true;
         break;
       }
       case Hour24: {
-        const [, hour, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        const [, hour, rest] = matchRegex(/^([012]?[0-9])(.*)/, compiled);
         parsedDate.setHours(parseInt(hour, 10));
         compiled = rest;
         is12HourTime = false;
         break;
       }
       case Minutes: {
-        const [, mins, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        const [, mins, rest] = matchRegex(/^([0-6]?[0-9])(.*)/, compiled);
         parsedDate.setMinutes(parseInt(mins, 10));
         compiled = rest;
         break;
       }
       case Seconds: {
-        const [, secs, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        const [, secs, rest] = matchRegex(/^([0-6]?[0-9])(.*)/, compiled);
         parsedDate.setSeconds(parseInt(secs, 10));
         compiled = rest;
         break;
