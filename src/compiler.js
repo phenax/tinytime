@@ -167,6 +167,7 @@ export function compileDateString(tokens: Array<Token>, dateString: string, opti
 
   const parsedDate = options.baseDate || new Date();
   let compiled = dateString;
+  let is12HourTime = false;
   let index = 0;
 
   const matchRegex = (regex, str) => {
@@ -226,37 +227,53 @@ export function compileDateString(tokens: Array<Token>, dateString: string, opti
         break;
       }
       case DayOfTheWeek:
-        // compiled += days[date.getDay()];
+        // TODO: Not implemented yet
+        // const [, day, rest] = matchRegex(/^([A-Z]{0,9})(.*)/i, compiled);
+        // const daysOfTheWeek = days.map(m => m.toLowerCase());
+        // parsedDate.setDay(daysOfTheWeek.indexOf(`${day}`.toLowerCase()));
+        // compiled = rest;
         break;
       case DayOfTheMonth: {
-        const [, day, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
-        parsedDate.setDate(parseInt(day, 10));
+        const [, date, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setDate(parseInt(date, 10));
         compiled = rest;
         break;
       }
-      case Hour:
-        // let hour = hours === 0 || hours === 12 ? 12 : hours % 12;
-        // if (options.padHours) {
-        //   hour = paddWithZeros(hour)
-        // }
-        // compiled += hour
+      case Hour: {
+        const [, hour, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setHours(parseInt(hour, 10));
+        compiled = rest;
+        is12HourTime = true;
         break;
-      case Hour24:
-        // let hour24 = hours;
-        // if (options.padHours) {
-        //   hour24 = paddWithZeros(hour24)
-        // }
-        // compiled += hour24
+      }
+      case Hour24: {
+        const [, hour, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setHours(parseInt(hour, 10));
+        compiled = rest;
+        is12HourTime = false;
         break;
-      case Minutes:
-        // compiled += paddWithZeros(minutes);
+      }
+      case Minutes: {
+        const [, mins, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setMinutes(parseInt(mins, 10));
+        compiled = rest;
         break;
-      case Seconds:
-        // compiled += paddWithZeros(seconds);
+      }
+      case Seconds: {
+        const [, secs, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setSeconds(parseInt(secs, 10));
+        compiled = rest;
         break;
-      case PostOrAnteMeridiem:
-        // compiled += hours >= 12 ? 'PM' : 'AM';
+      }
+      case PostOrAnteMeridiem: {
+        if (is12HourTime) {
+          const [, ampm, rest] = matchRegex(/^(AM|PM)(.*)/i, compiled);
+          const hours = parsedDate.getHours();
+          const isPm = `${ampm}`.toLowerCase() === 'pm';
+          parsedDate.setHours(isPm && hours <= 12 ? hours + 12 : hours);
+        }
         break;
+      }
     }
     index++;
   }

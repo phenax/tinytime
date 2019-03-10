@@ -108,9 +108,30 @@ describe('tinytime', () => {
       expect(date.getFullYear()).toBe(1916);
     });
 
-    // it ('week days', () => {
-    //   const date = parse('3ds3{dddd}', '3ds3Friday');
-    //   expect(date.getDay()).toBe(5);
-    // });
+    it ('should parse time', () => {
+      const date = parse('{H}:{mm}:{ss}', '14:53:17');
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(53);
+      expect(date.getSeconds()).toBe(17);
+    });
+
+    it ('should parse 12 hour time', () => {
+      const date = parse('{h}:{mm}:{ss}', '2:53:17');
+      expect(date.getHours()).toBe(2);
+      expect(date.getMinutes()).toBe(53);
+      expect(date.getSeconds()).toBe(17);
+    });
+
+    it ('should parse evaluate am/pm in 12 hour time', () => {
+      const date = parse('{h}:{mm}:{ss} {a}', '2:53:17 PM');
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(53);
+      expect(date.getSeconds()).toBe(17);
+    });
+
+    it ('should parse evaluate am/pm in 12 hour time', () => {
+      const date = parse('{h}:{mm}:{ss} {a}', '14:53:17 pm');
+      expect(date.getHours()).toBe(14);
+    });
   });
 });
