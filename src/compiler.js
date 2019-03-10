@@ -41,6 +41,8 @@ const months: Array<Month> = [
   "December"
 ]
 
+const partialMonths = months.map(m => m.slice(0, 3).toLowerCase());
+
 const days: Array<Days> = [
   "Sunday",
   "Monday",
@@ -152,4 +154,112 @@ export default function compiler(tokens: Array<Token>, date: Date, options: Tiny
     index++;
   }
   return compiled;
+}
+
+
+export function compileDateString(tokens: Array<Token>, dateString: string): string {
+  // const month = date.getMonth();
+  // const year = date.getFullYear();
+  // const hours = date.getHours();
+  // const seconds = date.getSeconds();
+  // const minutes = date.getMinutes();
+  // const day = date.getDate();
+
+  const parsedDate = new Date();
+  let compiled = dateString;
+  let index = 0;
+
+  const matchRegex = (regex, str) => {
+    const matches = str.match(regex);
+    if (!matches) {
+      throw new Error('Invalid time');
+    }
+    return matches;
+  };
+
+  while (index < tokens.length) {
+    const token = tokens[index];
+    switch (token.t) {
+      case UserText:
+        // $FlowFixMe flow doesn't know that v is always populated on UserText
+        if (compiled.indexOf(token.v) === 0) {
+          compiled = compiled.replace(token.v, '');
+        }
+        break;
+      case Day: {
+        const [, day, , rest] = matchRegex(/^(\d{0,2})(st|rd|nd|th)(.*)/, compiled);
+        parsedDate.setDate(parseInt(day, 10));
+        compiled = rest;
+        break;
+      }
+      case PartialMonth: {
+        const [, month, rest] = matchRegex(/^([A-Z]{3})(.*)/i, compiled);
+        parsedDate.setMonth(partialMonths.indexOf(`${month}`.toLowerCase()));
+        compiled = rest;
+        break;
+      }
+      case FullMonth: {
+        const [, month, rest] = matchRegex(/^([A-Z]+)(.*)/i, compiled);
+        const monthList = months.map(m => m.toLowerCase());
+        parsedDate.setMonth(monthList.indexOf(`${month}`.toLowerCase()));
+        compiled = rest;
+        break;
+      }
+      case NumberMonth: {
+        const [, month, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setMonth(parseInt(month, 10) - 1);
+        compiled = rest;
+        break;
+      }
+      case FullYear: {
+        const [, year, rest] = matchRegex(/^(\d{4})(.*)/, compiled);
+        parsedDate.setFullYear(parseInt(year, 10));
+        compiled = rest;
+        break;
+      }
+      case PartialYear: { // TODO: Confirm calculations
+        const [, partialYear, rest] = matchRegex(/^(\d{2})(.*)/, compiled);
+        const currentYear = parsedDate.getFullYear();
+        const year = `${currentYear}`.slice(0, 2) + partialYear;
+        parsedDate.setFullYear(parseInt(year, 10));
+        compiled = rest;
+        break;
+      }
+      case DayOfTheWeek:
+        // compiled += days[date.getDay()];
+        break;
+      case DayOfTheMonth: {
+        const [, day, rest] = matchRegex(/^(\d{0,2})(.*)/, compiled);
+        parsedDate.setDate(parseInt(day, 10));
+        compiled = rest;
+        break;
+      }
+      case Hour:
+        // let hour = hours === 0 || hours === 12 ? 12 : hours % 12;
+        // if (options.padHours) {
+        //   hour = paddWithZeros(hour)
+        // }
+        // compiled += hour
+        break;
+      case Hour24:
+        // let hour24 = hours;
+        // if (options.padHours) {
+        //   hour24 = paddWithZeros(hour24)
+        // }
+        // compiled += hour24
+        break;
+      case Minutes:
+        // compiled += paddWithZeros(minutes);
+        break;
+      case Seconds:
+        // compiled += paddWithZeros(seconds);
+        break;
+      case PostOrAnteMeridiem:
+        // compiled += hours >= 12 ? 'PM' : 'AM';
+        break;
+    }
+    index++;
+  }
+
+  return parsedDate;
 }

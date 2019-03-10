@@ -1,9 +1,10 @@
 // @flow
-import compiler from './compiler';
+import compiler, { compileDateString } from './compiler';
 import parser from './parser'
 
 type TinyTime = {
-  render: (date: Date) => string
+  render: (date: Date) => string,
+  parse: (dateStr: string) => Date,
 };
 
 export type TinyTimeOptions = {
@@ -17,6 +18,9 @@ export default function tinytime(template: string, options: TinyTimeOptions = {}
   return {
     render(date: Date) {
       return compiler(templateAST, date, options )
-    }
+    },
+    parse(dateStr: string) {
+      return compileDateString(templateAST, dateStr);
+    },
   }
 }
