@@ -157,7 +157,7 @@ export default function compiler(tokens: Array<Token>, date: Date, options: Tiny
 }
 
 
-export function compileDateString(tokens: Array<Token>, dateString: string): string {
+export function compileDateString(tokens: Array<Token>, dateString: string, options: TinyTimeOptions): string {
   // const month = date.getMonth();
   // const year = date.getFullYear();
   // const hours = date.getHours();
@@ -165,7 +165,7 @@ export function compileDateString(tokens: Array<Token>, dateString: string): str
   // const minutes = date.getMinutes();
   // const day = date.getDate();
 
-  const parsedDate = new Date();
+  const parsedDate = options.baseDate || new Date();
   let compiled = dateString;
   let index = 0;
 

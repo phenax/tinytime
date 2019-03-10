@@ -77,41 +77,40 @@ describe('tinytime', () => {
   });
 
   describe('parsing', () => {
-    const baseDate = new Date(1997, 4, 1, 0, 0, 0, 0);
+    const getOptions = () => ({ baseDate: new Date(1997, 4, 1, 0, 0, 0, 0) });
+    const parse = (format, dstr, optns) => tinytime(format, optns || getOptions()).parse(dstr);
 
     it ('should parse given date time from a string', () => {
-      const date = tinytime('{Do} {Mo}, {YYYY}').parse('17th 05, 1997', { baseDate });
+      const date = parse('{Do} {Mo}, {YYYY}', '17th 05, 1997');
       expect(date.getDate()).toBe(17);
       expect(date.getMonth()).toBe(4);
       expect(date.getFullYear()).toBe(1997);
     });
 
     it ('partial month and partial year', () => {
-      const date = tinytime('{DD}_{MM}_{YY}').parse('3_Nov_16', { baseDate });
+      const date = parse('{DD}_{MM}_{YY}', '3_Nov_16');
       expect(date.getDate()).toBe(3);
       expect(date.getMonth()).toBe(10);
-      expect(date.getFullYear()).toBe(2016);
+      expect(date.getFullYear()).toBe(1916);
     });
 
     it ('full month and full year', () => {
-      const date = tinytime('{Do}_{MMMM}_{YYYY}').parse('3rd_November_2016', { baseDate });
+      const date = parse('{Do}_{MMMM}_{YYYY}', '3rd_November_2016');
       expect(date.getDate()).toBe(3);
       expect(date.getMonth()).toBe(10);
       expect(date.getFullYear()).toBe(2016);
     });
 
-    it ('should parse event if the format has numbers', () => {
-      const date = tinytime('{DD}5{MM}999{YY}').parse('035Nov99916', { baseDate });
+    it ('should parse even if the format has numbers', () => {
+      const date = parse('{DD}5{MM}999{YY}', '035Nov99916');
       expect(date.getDate()).toBe(3);
       expect(date.getMonth()).toBe(10);
-      expect(date.getFullYear()).toBe(2016);
+      expect(date.getFullYear()).toBe(1916);
     });
 
     // it ('week days', () => {
-    //   const date = tinytime('3ds3{dddd}').parse('3ds3Friday', { baseDate });
-    //   expect(date.getDate()).toBe(3);
-    //   expect(date.getMonth()).toBe(10);
-    //   expect(date.getFullYear()).toBe(2016);
+    //   const date = parse('3ds3{dddd}', '3ds3Friday');
+    //   expect(date.getDay()).toBe(5);
     // });
   });
 });

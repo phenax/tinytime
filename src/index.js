@@ -11,16 +11,17 @@ export type TinyTimeOptions = {
   padHours?: boolean,
   padDays?: boolean,
   padMonth?: boolean,
+  baseDate?: Date,
 }
 
 export default function tinytime(template: string, options: TinyTimeOptions = {}): TinyTime {
   const templateAST = parser(template);
   return {
     render(date: Date) {
-      return compiler(templateAST, date, options )
+      return compiler(templateAST, date, options);
     },
     parse(dateStr: string) {
-      return compileDateString(templateAST, dateStr);
+      return compileDateString(templateAST, dateStr, options);
     },
   }
 }
